@@ -5,7 +5,7 @@
 > 시간순 이력은 [SESSION_LOG.md](SESSION_LOG.md)에 누적합니다.
 
 - **최종 갱신:** 2026-06-10
-- **갱신자:** Claude (초기 구축 세션)
+- **갱신자:** Claude (E2E 실동작 검증 세션)
 - **프로젝트 한 줄 요약:** ESP32-C3 Super Mini에서 BLE로 서보모터(0~180°)를 제어하는 펌웨어 + 크로스플랫폼 빌드환경.
 
 ---
@@ -17,19 +17,20 @@
 | 펌웨어 (`src/main.cpp`) | ✅ 작성 완료 (NimBLE + ESP32Servo) |
 | 빌드 설정 (`platformio.ini`) | ✅ 작성 완료 |
 | 설치 스크립트 (win/mac/linux) | ✅ 작성 완료 |
-| 웹 UI (`web/index.html`, Web Bluetooth) | ✅ 작성 완료, ⬜ 실기 검증 미완 |
+| 웹 UI (`web/index.html`, Web Bluetooth) | ✅ 작성 완료 + 실기 연결/제어 검증 완료 |
 | **펌웨어 빌드(`pio run`)** | ✅ **검증 완료** (Windows, PlatformIO 6.1.19, Core 3.3.7, NimBLE 2.x) |
 | 설치 스크립트(windows) 실행 | ✅ 검증 완료 (.venv 생성 + pio 설치 + 빌드 성공) |
 | **업로드 + 부팅/BLE 광고** | ✅ **검증 완료** (COM10, 시리얼에 `advertising as 'ESP32C3-Servo'`) |
-| BLE 연결 + 서보 실동작 | ⬜ 미검증 (웹UI/폰으로 연결 + 서보 배선 후 확인) |
-| BLE 클라이언트(앱) 연동 테스트 | ⬜ 미검증 |
+| **BLE 연결 + 서보 실동작** | ✅ **검증 완료** (웹UI 연결 + 서보 회전 확인. 초기 미동작은 배선 오류였음) |
 
-## 2. 다음 할 일 (Next Actions)
+> **상태 요약:** 빌드 → 업로드 → BLE 연결 → 서보 제어까지 **E2E 실동작 확인 완료**.
+> 핵심 기능은 완성. 아래는 선택적 개선 항목.
 
-1. 개발환경 설치 스크립트 실행 → `pio run` 으로 빌드가 통과하는지 확인.
-2. 보드 연결 후 `pio run -t upload` → 시리얼 모니터에서 `[BLE] advertising` 로그 확인.
-3. nRF Connect 앱으로 `ESP32C3-Servo` 접속 → Command 특성에 "90" 써서 서보 동작 확인.
-4. 서보 펄스폭(`kServoMinUs`/`kServoMaxUs`)을 실제 서보에 맞게 보정.
+## 2. 다음 할 일 (Next Actions) — 선택적 개선
+
+1. 서보 펄스폭(`kServoMinUs`/`kServoMaxUs`)을 실제 서보에 맞게 미세 보정(끝단 떨림/가동범위).
+2. macOS/Linux 설치 스크립트 실기 검증(현재 Windows만 검증됨).
+3. (원하면) GitHub Pages를 별도 배포 워크플로로 분리, BLE 다중 클라이언트 정책 등.
 
 ## 3. 핵심 결정과 이유 (Decisions)
 
