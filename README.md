@@ -14,14 +14,19 @@ ESP32-C3 Super Mini에 BLE로 접속하여 서보모터(0~180°)를 제어합니
 | macOS | `chmod +x scripts/setup_macos.sh && ./scripts/setup_macos.sh` |
 | Linux | `chmod +x scripts/setup_linux.sh && ./scripts/setup_linux.sh` |
 
-각 스크립트는 PlatformIO Core(`pio`)를 설치합니다. `--build`(맥/리눅스) 또는 `-Build`(윈도우)를 붙이면 설치 후 바로 빌드합니다.
+각 스크립트는 프로젝트 로컬 가상환경 **`.venv`** 를 만들고 그 안에 PlatformIO Core(`pio`)를 설치합니다(시스템 Python 비오염). `--build`(맥/리눅스) 또는 `-Build`(윈도우)를 붙이면 설치 후 바로 빌드합니다.
 
 ### 2. 빌드 & 업로드
+가상환경을 활성화한 뒤 사용합니다.
 ```
+# 활성화
+#   Windows :  .\.venv\Scripts\Activate.ps1
+#   mac/linux: source .venv/bin/activate
 pio run                       # 빌드
 pio run -t upload             # 보드에 업로드
 pio device monitor -b 115200  # 시리얼 로그 확인
 ```
+활성화 없이 직접 호출도 가능: `./.venv/bin/pio ...`(mac/linux), `.\.venv\Scripts\pio.exe ...`(win).
 
 ### 3. BLE로 제어
 

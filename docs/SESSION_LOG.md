@@ -6,6 +6,17 @@
 
 ---
 
+## 2026-06-10 — 설치 스크립트 venv 격리로 변경
+- **작업자:** Claude
+- **목표:** PlatformIO를 시스템이 아닌 프로젝트 로컬 venv에 설치(요청).
+- **한 일:**
+  - 3개 스크립트(win/mac/linux)를 `.venv` 생성 → `pip install platformio` 방식으로 변경.
+    (기존 get-platformio.py 글로벌 설치 방식 대체)
+  - `.gitignore`에 `.venv/` 추가. README/CLAUDE.md에 활성화·직접호출 안내 반영.
+- **사용:** `source .venv/bin/activate`(mac/linux) / `.\.venv\Scripts\Activate.ps1`(win)
+  또는 `./.venv/bin/pio ...` 직접 호출.
+- **검증:** ⬜ 스크립트 실기 실행 미검증(보드/PC에서 1회 실행 권장).
+
 ## 2026-06-10 — GitHub Pages 배포
 - **작업자:** Claude
 - **한 일:** 저장소 public 전환, 루트 `index.html`(→`web/` 리다이렉트) 추가,

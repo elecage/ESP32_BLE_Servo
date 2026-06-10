@@ -1,4 +1,5 @@
 .pio/
+.venv/
 .vscode/
 *.bin
 *.elf
