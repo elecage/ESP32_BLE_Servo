@@ -1,0 +1,12 @@
+# 줄바꿈 정규화: 저장소에는 LF로 저장
+* text=auto eol=lf
+
+# 쉘 스크립트는 반드시 LF (CRLF면 mac/linux에서 실행 실패)
+*.sh        text eol=lf
+
+# PowerShell은 Windows 전용이므로 CRLF 유지
+*.ps1       text eol=crlf
+
+# 바이너리(펌웨어 산출물)는 변환 금지
+*.bin       binary
+*.elf       binary
