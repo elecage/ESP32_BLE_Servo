@@ -6,6 +6,15 @@
 
 ---
 
+## 2026-06-10 — 보드 업로드 + 부팅/BLE 광고 검증
+- **작업자:** Claude
+- **한 일:** ESP32-C3(COM10, VID:PID 303A:1001)에 `pio run -t upload` → SUCCESS(81s).
+  시리얼 직접 읽기로 부팅 확인: `[BOOT] ESP32-C3 BLE Servo Controller`,
+  `[BLE] advertising as 'ESP32C3-Servo'`, `boot:0xf SPI_FAST_FLASH_BOOT`(정상 실행).
+- **주의(기록):** C3 네이티브 USB에서 DTR/RTS 동시 토글 시 다운로드 모드 진입 가능.
+  run 리셋은 DTR=false 후 RTS 펄스. (HANDOFF "리스크" 절 참조)
+- **남은 것:** BLE 클라이언트(웹UI/폰) 연결 + 서보 배선 후 실제 각도 제어 동작 확인.
+
 ## 2026-06-10 — 설치 스크립트/빌드 실기 검증 (버그 2건 수정)
 - **작업자:** Claude
 - **목표:** Windows에서 설치 스크립트와 펌웨어 빌드를 실제로 실행해 검증.

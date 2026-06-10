@@ -20,7 +20,8 @@
 | 웹 UI (`web/index.html`, Web Bluetooth) | ✅ 작성 완료, ⬜ 실기 검증 미완 |
 | **펌웨어 빌드(`pio run`)** | ✅ **검증 완료** (Windows, PlatformIO 6.1.19, Core 3.3.7, NimBLE 2.x) |
 | 설치 스크립트(windows) 실행 | ✅ 검증 완료 (.venv 생성 + pio 설치 + 빌드 성공) |
-| 실제 보드 업로드/동작 검증 | ⬜ 미검증 (보드 연결 후 `pio run -t upload`) |
+| **업로드 + 부팅/BLE 광고** | ✅ **검증 완료** (COM10, 시리얼에 `advertising as 'ESP32C3-Servo'`) |
+| BLE 연결 + 서보 실동작 | ⬜ 미검증 (웹UI/폰으로 연결 + 서보 배선 후 확인) |
 | BLE 클라이언트(앱) 연동 테스트 | ⬜ 미검증 |
 
 ## 2. 다음 할 일 (Next Actions)
@@ -45,6 +46,9 @@
 - 온보드 LED 핀은 보드 리비전에 따라 GPIO8이 아닐 수 있음(`kLedPin` 확인 필요).
 - 서보 전원: 서보는 5V/전류 소모가 크므로 ESP32-C3 3V3 핀이 아닌 **별도 5V**에서 급전, GND 공통 연결 권장.
 - `esp32-c3-devkitm-1` 보드 정의 사용 — Super Mini와 핀맵 호환되나 차이 시 `platformio.ini`에서 조정.
+- **시리얼 모니터 주의(C3 네이티브 USB)**: DTR/RTS를 동시에 토글하면 보드가 다운로드 모드
+  (`waiting for download`)로 빠질 수 있다. 정상 실행 리셋은 DTR=false(boot 해제) 후 RTS만 펄스.
+  업로드 후에는 `pio run -t upload`가 자동으로 run 모드로 리셋하므로 보통 신경쓸 필요 없음.
 
 ## 5. 빠른 참조 (Quick Reference)
 
