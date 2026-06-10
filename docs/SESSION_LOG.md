@@ -6,6 +6,24 @@
 
 ---
 
+## 2026-06-10 — 웹 UI(Web Bluetooth) 추가
+- **작업자:** Claude
+- **목표:** 스마트폰 BLE 앱 대신 브라우저에서 슬라이더/버튼으로 서보 제어.
+- **한 일:**
+  - `web/index.html` 작성 — Web Bluetooth API로 ESP32에 직접 연결.
+    슬라이더(쓰로틀 쓰기), 프리셋(0/45/90/135/180), CENTER/SWEEP, 직접 명령,
+    Status Notify 수신/로그. 펌웨어와 동일 UUID·텍스트 명령 사용(펌웨어 변경 없음).
+  - README에 웹 UI 사용법, HANDOFF에 상태 반영.
+- **결정:** Web Bluetooth 채택 — 앱 설치 불필요, 데스크톱/안드로이드 Chrome·Edge 지원.
+  단 보안 컨텍스트 필요(localhost/https), iOS는 Bluefy 필요 → 문서에 명시.
+- **검증:** ⬜ 실제 보드와 브라우저 연결 미검증.
+- **다음 세션 인계:** 보드 업로드 후 `localhost:8000`에서 연결/슬라이더 동작 확인.
+
+## 2026-06-10 — git 저장소 초기화 & GitHub 푸시
+- **작업자:** Claude
+- **한 일:** `git init`(main), `.gitattributes`로 줄바꿈 고정, 초기 커밋,
+  private 저장소 `elecage/ESP32_BLE_Servo` 생성 후 push.
+
 ## 2026-06-10 — 초기 프로젝트 구축
 - **작업자:** Claude
 - **목표:** ESP32-C3 Super Mini BLE 서보 제어 프로젝트 초기 구축.

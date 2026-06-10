@@ -17,6 +17,7 @@
 | 펌웨어 (`src/main.cpp`) | ✅ 작성 완료 (NimBLE + ESP32Servo) |
 | 빌드 설정 (`platformio.ini`) | ✅ 작성 완료 |
 | 설치 스크립트 (win/mac/linux) | ✅ 작성 완료 |
+| 웹 UI (`web/index.html`, Web Bluetooth) | ✅ 작성 완료, ⬜ 실기 검증 미완 |
 | 실제 보드 빌드 검증 | ⬜ 미검증 (보드 연결 후 `pio run` 필요) |
 | 실제 보드 업로드/동작 검증 | ⬜ 미검증 |
 | BLE 클라이언트(앱) 연동 테스트 | ⬜ 미검증 |
@@ -42,6 +43,7 @@
 
 ## 5. 빠른 참조 (Quick Reference)
 
+- 웹 UI: `cd web && python -m http.server 8000` → Chrome/Edge로 `http://localhost:8000`
 - 빌드: `pio run` · 업로드: `pio run -t upload` · 모니터: `pio device monitor -b 115200`
 - BLE 이름: `ESP32C3-Servo`
 - Service UUID: `4fafc201-1fb5-459e-8fcc-c5c9c331914b`

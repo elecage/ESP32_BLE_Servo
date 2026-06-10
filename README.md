@@ -21,7 +21,20 @@ pio device monitor -b 115200  # 시리얼 로그 확인
 ```
 
 ### 3. BLE로 제어
-스마트폰 **nRF Connect**(또는 BLE 앱)로:
+
+**(권장) 웹 UI — 슬라이더/버튼으로 제어** ([web/index.html](web/index.html))
+
+설치 없이 브라우저에서 ESP32에 직접 연결합니다(Web Bluetooth). 펌웨어 변경 불필요.
+```
+cd web
+python -m http.server 8000
+```
+→ 데스크톱/안드로이드 **Chrome·Edge**에서 `http://localhost:8000` 접속 → **연결** 클릭 → 슬라이더로 제어.
+
+> Web Bluetooth는 보안 컨텍스트에서만 동작합니다. `file://`로 직접 열면 안 되고
+> `localhost` 또는 `https`(GitHub Pages 등)로 열어야 합니다. iOS는 **Bluefy** 앱 브라우저 필요.
+
+**(대안) 범용 BLE 앱 — nRF Connect**
 1. `ESP32C3-Servo` 장치에 연결
 2. Service `4fafc201-...914b` 의 Command 특성(`...26a8`)에 값을 쓴다.
    - 텍스트 `"90"` → 90도

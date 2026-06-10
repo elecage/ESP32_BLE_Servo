@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESP32-C3 BLE Servo</title>
+<style>
+  :root {
+    --bg: #0f172a; --card: #1e293b; --line: #334155;
+    --txt: #e2e8f0; --muted: #94a3b8;
+    --accent: #38bdf8; --accent2: #0ea5e9;
+    --ok: #22c55e; --off: #ef4444; --warn: #f59e0b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--txt);
+    min-height: 100vh; display: flex; justify-content: center;
+    padding: 16px;
+  }
+  .app { width: 100%; max-width: 440px; }
+  h1 { font-size: 1.25rem; margin: 8px 0 16px; display: flex; align-items: center; gap: 10px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--off); flex: none;
+         box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
+  .dot.on { background: var(--ok); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)} 70%{box-shadow:0 0 0 8px rgba(34,197,94,0)} 100%{box-shadow:0 0 0 0 rgba(34,197,94,0)} }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+          padding: 16px; margin-bottom: 14px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  button {
+    flex: 1; min-width: 64px; cursor: pointer; font-size: 1rem; font-weight: 600;
+    color: var(--txt); background: #273449; border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px 10px; transition: .12s;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--accent2); border-color: var(--accent2); color: #02131f; }
+  button.danger { background: transparent; border-color: var(--off); color: var(--off); }
+  .angle-display { text-align: center; margin: 4px 0 12px; }
+  .angle-display .val { font-size: 3.2rem; font-weight: 800; line-height: 1; color: var(--accent); }
+  .angle-display .deg { font-size: 1.4rem; color: var(--muted); }
+  input[type=range] { width: 100%; accent-color: var(--accent); height: 28px; }
+  .ticks { display: flex; justify-content: space-between; color: var(--muted); font-size: .8rem; margin-top: 2px; }
+  label.section { display: block; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em;
+                  color: var(--muted); margin-bottom: 8px; }
+  .cmd-row { display: flex; gap: 8px; }
+  input[type=text] {
+    flex: 1; background: #0f1b2d; border: 1px solid var(--line); border-radius: 10px;
+    color: var(--txt); padding: 11px 12px; font-size: 1rem;
+  }
+  input[type=text]:focus { outline: none; border-color: var(--accent); }
+  #log {
+    background: #0b1322; border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px; height: 130px; overflow-y: auto; font-family: ui-monospace, monospace;
+    font-size: .8rem; color: var(--muted); white-space: pre-wrap; word-break: break-all;
+  }
+  #log .tx { color: var(--accent); }
+  #log .rx { color: var(--ok); }
+  #log .err { color: var(--off); }
+  .hint { font-size: .8rem; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+  .hint code { background: #0b1322; padding: 1px 6px; border-radius: 5px; color: var(--accent); }
+  #unsupported { display: none; background: #3b1d1d; border-color: var(--off); color: #fecaca; }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1><span id="dot" class="dot"></span>ESP32-C3 BLE Servo</h1>
+
+  <div id="unsupported" class="card">
+    ⚠️ 이 브라우저는 <b>Web Bluetooth</b>를 지원하지 않습니다.<br>
+    데스크톱/안드로이드의 <b>Chrome</b> 또는 <b>Edge</b>를 사용하세요.
+    (iOS는 <b>Bluefy</b> 앱 브라우저 필요)
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <button id="connectBtn" class="primary">🔗 연결</button>
+      <button id="disconnectBtn" class="danger" disabled>연결 해제</button>
+    </div>
+    <div class="hint" id="status">상태: 연결 안 됨</div>
+  </div>
+
+  <div class="card">
+    <div class="angle-display">
+      <span class="val" id="angleVal">90</span><span class="deg">°</span>
+    </div>
+    <input type="range" id="slider" min="0" max="180" value="90" disabled>
+    <div class="ticks"><span>0</span><span>45</span><span>90</span><span>135</span><span>180</span></div>
+    <div class="row" style="margin-top:14px">
+      <button class="preset" data-a="0"   disabled>0</button>
+      <button class="preset" data-a="45"  disabled>45</button>
+      <button class="preset" data-a="90"  disabled>90</button>
+      <button class="preset" data-a="135" disabled>135</button>
+      <button class="preset" data-a="180" disabled>180</button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button id="centerBtn" disabled>↩ CENTER</button>
+      <button id="sweepBtn"  disabled>↔ SWEEP</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label class="section">직접 명령</label>
+    <div class="cmd-row">
+      <input type="text" id="cmdInput" placeholder='예: 120  ·  CENTER  ·  SWEEP' disabled>
+      <button id="sendBtn" style="flex:none" disabled>전송</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label class="section">로그</label>
+    <div id="log"></div>
+  </div>
+
+  <div class="hint">
+    ※ Web Bluetooth는 <b>보안 컨텍스트</b>에서만 동작합니다. 이 파일을 직접(<code>file://</code>) 열면 안 되고,
+    <code>web/</code> 폴더에서 <code>python -m http.server 8000</code> 실행 후
+    <code>http://localhost:8000</code> 로 접속하세요. (GitHub Pages 등 https도 가능)
+  </div>
+</div>
+
+<script>
+"use strict";
+// 펌웨어(src/main.cpp)와 동일한 UUID
+const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+const CMD_UUID     = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+const STATUS_UUID  = "beb5483e-36e1-4688-b7f5-ea07361b26a9";
+
+const $ = (id) => document.getElementById(id);
+const els = {
+  dot: $("dot"), status: $("status"), connect: $("connectBtn"), disconnect: $("disconnectBtn"),
+  slider: $("slider"), angleVal: $("angleVal"), center: $("centerBtn"), sweep: $("sweepBtn"),
+  cmdInput: $("cmdInput"), send: $("sendBtn"), log: $("log"),
+  presets: Array.from(document.querySelectorAll(".preset")),
+};
+
+let device = null, cmdChar = null, statusChar = null;
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
+function log(msg, cls = "") {
+  const time = new Date().toLocaleTimeString();
+  const line = document.createElement("div");
+  if (cls) line.className = cls;
+  line.textContent = `[${time}] ${msg}`;
+  els.log.appendChild(line);
+  els.log.scrollTop = els.log.scrollHeight;
+}
+
+function setControls(enabled) {
+  els.disconnect.disabled = !enabled;
+  els.connect.disabled = enabled;
+  els.slider.disabled = !enabled;
+  els.center.disabled = !enabled;
+  els.sweep.disabled = !enabled;
+  els.cmdInput.disabled = !enabled;
+  els.send.disabled = !enabled;
+  els.presets.forEach(b => b.disabled = !enabled);
+}
+
+function setConnected(on, text) {
+  els.dot.classList.toggle("on", on);
+  els.status.textContent = "상태: " + text;
+  setControls(on);
+}
+
+// 명령 전송 (펌웨어는 UTF-8 텍스트 "90"/"CENTER"/"SWEEP" 등을 해석)
+async function sendCommand(text, quiet = false) {
+  if (!cmdChar) return;
+  try {
+    const data = encoder.encode(String(text));
+    // WRITE_NR 지원 시 빠른 무응답 쓰기, 아니면 응답 쓰기
+    if (cmdChar.properties.writeWithoutResponse) {
+      await cmdChar.writeValueWithoutResponse(data);
+    } else {
+      await cmdChar.writeValue(data);
+    }
+    if (!quiet) log("TX → " + text, "tx");
+  } catch (e) {
+    log("쓰기 실패: " + e.message, "err");
+  }
+}
+
+// 슬라이더 연속 입력 쓰로틀 (BLE 과부하 방지)
+let lastWrite = 0, pending = null;
+function throttledAngle(deg) {
+  els.angleVal.textContent = deg;
+  const now = performance.now();
+  if (now - lastWrite > 70) {
+    lastWrite = now;
+    sendCommand(deg, true);
+  } else {
+    clearTimeout(pending);
+    pending = setTimeout(() => { lastWrite = performance.now(); sendCommand(deg, true); }, 80);
+  }
+}
+
+async function connect() {
+  if (!navigator.bluetooth) { log("Web Bluetooth 미지원", "err"); return; }
+  try {
+    els.status.textContent = "상태: 장치 선택 중...";
+    device = await navigator.bluetooth.requestDevice({
+      filters: [{ services: [SERVICE_UUID] }],
+      optionalServices: [SERVICE_UUID],
+    });
+    device.addEventListener("gattserverdisconnected", onDisconnected);
+
+    log("연결 중: " + (device.name || device.id));
+    const server = await device.gatt.connect();
+    const service = await server.getPrimaryService(SERVICE_UUID);
+    cmdChar = await service.getCharacteristic(CMD_UUID);
+
+    // 상태 알림(Notify) 구독
+    try {
+      statusChar = await service.getCharacteristic(STATUS_UUID);
+      await statusChar.startNotifications();
+      statusChar.addEventListener("characteristicvaluechanged", onStatus);
+    } catch (e) {
+      log("상태 특성 구독 생략: " + e.message, "err");
+    }
+
+    setConnected(true, "연결됨 — " + (device.name || "장치"));
+    log("✅ 연결 완료", "rx");
+  } catch (e) {
+    if (e.name === "NotFoundError") {
+      els.status.textContent = "상태: 연결 안 됨 (취소됨)";
+    } else {
+      log("연결 실패: " + e.message, "err");
+      els.status.textContent = "상태: 연결 실패";
+    }
+  }
+}
+
+function onStatus(ev) {
+  const txt = decoder.decode(ev.target.value).trim();
+  log("RX ← " + txt, "rx");
+  const m = txt.match(/ANGLE:(\d+)/);
+  if (m) {
+    const a = m[1];
+    els.angleVal.textContent = a;
+    els.slider.value = a;
+  }
+}
+
+function onDisconnected() {
+  setConnected(false, "연결 끊김");
+  log("⚠️ 연결이 끊어졌습니다", "err");
+  cmdChar = statusChar = null;
+}
+
+function disconnect() {
+  if (device && device.gatt.connected) device.gatt.disconnect();
+}
+
+// 이벤트 바인딩
+els.connect.addEventListener("click", connect);
+els.disconnect.addEventListener("click", disconnect);
+els.slider.addEventListener("input", (e) => throttledAngle(+e.target.value));
+els.presets.forEach(b => b.addEventListener("click", () => {
+  els.slider.value = b.dataset.a; throttledAngle(+b.dataset.a);
+}));
+els.center.addEventListener("click", () => sendCommand("CENTER"));
+els.sweep.addEventListener("click", () => sendCommand("SWEEP"));
+els.send.addEventListener("click", () => {
+  const v = els.cmdInput.value.trim();
+  if (v) { sendCommand(v); els.cmdInput.value = ""; }
+});
+els.cmdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") els.send.click(); });
+
+if (!navigator.bluetooth) {
+  $("unsupported").style.display = "block";
+  els.connect.disabled = true;
+}
+</script>
+</body>
+</html>
