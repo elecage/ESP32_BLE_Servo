@@ -6,6 +6,22 @@
 
 ---
 
+## 2026-06-10 — 설치 스크립트/빌드 실기 검증 (버그 2건 수정)
+- **작업자:** Claude
+- **목표:** Windows에서 설치 스크립트와 펌웨어 빌드를 실제로 실행해 검증.
+- **검증 환경:** Windows 11, Python 3.13.12, PlatformIO 6.1.19, Arduino Core 3.3.7.
+- **발견·수정한 버그:**
+  1. **setup_windows.ps1 인코딩** — BOM 없는 UTF-8이라 PS 5.1이 cp949로 오인 →
+     한글 깨짐 + 마지막 Write-Host에서 파싱 에러로 exit 1. → **UTF-8 BOM으로 재저장**하여 해결.
+  2. **NimBLE 버전 비호환** — 1.4.x가 Core 3.x에서 `'esp_timer_handle_t' does not name a type`
+     에러로 빌드 실패. → **NimBLE-Arduino 2.x로 업그레이드**, main.cpp 콜백을 2.x API로 수정:
+     - ServerCallbacks onConnect/onDisconnect에 `NimBLEConnInfo&`(+reason) 추가
+     - onWrite에 `NimBLEConnInfo&` 추가, getValue를 길이기반 바이너리 안전 읽기로
+     - `setPower(ESP_PWR_LVL_P9)`→`setPower(9)`, `setScanResponse`→`enableScanResponse`
+- **검증 결과:** ✅ `.venv` 설치 스크립트 정상(exit 0), ✅ `pio run` 빌드 SUCCESS
+  (RAM 5.4%, Flash 28.2%, firmware.bin 생성).
+- **다음 세션 인계:** 보드 연결 후 `pio run -t upload` → 시리얼/웹UI 동작 확인만 남음.
+
 ## 2026-06-10 — 설치 스크립트 venv 격리로 변경
 - **작업자:** Claude
 - **목표:** PlatformIO를 시스템이 아닌 프로젝트 로컬 venv에 설치(요청).

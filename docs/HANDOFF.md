@@ -18,8 +18,9 @@
 | 빌드 설정 (`platformio.ini`) | ✅ 작성 완료 |
 | 설치 스크립트 (win/mac/linux) | ✅ 작성 완료 |
 | 웹 UI (`web/index.html`, Web Bluetooth) | ✅ 작성 완료, ⬜ 실기 검증 미완 |
-| 실제 보드 빌드 검증 | ⬜ 미검증 (보드 연결 후 `pio run` 필요) |
-| 실제 보드 업로드/동작 검증 | ⬜ 미검증 |
+| **펌웨어 빌드(`pio run`)** | ✅ **검증 완료** (Windows, PlatformIO 6.1.19, Core 3.3.7, NimBLE 2.x) |
+| 설치 스크립트(windows) 실행 | ✅ 검증 완료 (.venv 생성 + pio 설치 + 빌드 성공) |
+| 실제 보드 업로드/동작 검증 | ⬜ 미검증 (보드 연결 후 `pio run -t upload`) |
 | BLE 클라이언트(앱) 연동 테스트 | ⬜ 미검증 |
 
 ## 2. 다음 할 일 (Next Actions)
@@ -32,7 +33,11 @@
 ## 3. 핵심 결정과 이유 (Decisions)
 
 - **PlatformIO 채택**: 윈도우/맥/리눅스 동일 워크플로, 툴체인·라이브러리 자동 관리.
-- **NimBLE-Arduino 채택**: ESP32-C3는 BLE 전용. NimBLE는 기본 Bluedroid보다 RAM/Flash 사용량이 적어 C3에 적합.
+- **NimBLE-Arduino 2.x 채택**: ESP32-C3는 BLE 전용. NimBLE는 RAM/Flash가 적어 C3에 적합.
+  현재 PlatformIO espressif32 플랫폼이 **Arduino Core 3.x(IDF5)**를 설치하므로
+  **NimBLE는 반드시 2.x**여야 한다. 1.4.x는 `esp_timer_handle_t` 에러로 빌드 실패(Core 2.x 전용).
+- **.ps1은 UTF-8 BOM으로 저장**: Windows PowerShell 5.1은 BOM 없는 UTF-8을 cp949로 오인 →
+  한글 깨짐 + 문자열 파싱 에러. BOM이 있어야 한다(.sh는 BOM 없이 둘 것).
 - **GATT 설계**: Command(Write) + Status(Notify) 2개 특성. 텍스트/바이트/명령어("CENTER","SWEEP")를 모두 허용해 범용 BLE 앱으로 테스트 가능하게 함.
 
 ## 4. 알려진 리스크 / 미해결 (Open Questions)

@@ -119,23 +119,26 @@ static void handleCommand(const std::string& raw) {
 // ----------------------------------------------------------------------------
 // BLE 콜백
 // ----------------------------------------------------------------------------
+// NimBLE 2.x 콜백 시그니처(NimBLEConnInfo&, onDisconnect는 reason 포함)
 class ServerCallbacks : public NimBLEServerCallbacks {
-  void onConnect(NimBLEServer* server) override {
+  void onConnect(NimBLEServer* server, NimBLEConnInfo& connInfo) override {
     g_connected = true;
     setLed(true);
     Serial.println("[BLE] client connected");
   }
-  void onDisconnect(NimBLEServer* server) override {
+  void onDisconnect(NimBLEServer* server, NimBLEConnInfo& connInfo, int reason) override {
     g_connected = false;
     setLed(false);
-    Serial.println("[BLE] client disconnected — restart advertising");
+    Serial.printf("[BLE] client disconnected (reason %d) — restart advertising\n", reason);
     NimBLEDevice::startAdvertising();
   }
 };
 
 class CmdCallbacks : public NimBLECharacteristicCallbacks {
-  void onWrite(NimBLECharacteristic* chr) override {
-    handleCommand(chr->getValue());
+  void onWrite(NimBLECharacteristic* chr, NimBLEConnInfo& connInfo) override {
+    // 바이너리 안전하게 길이 기반으로 읽는다(0x00 바이트 포함 가능)
+    NimBLEAttValue v = chr->getValue();
+    handleCommand(std::string((const char*)v.data(), v.length()));
   }
 };
 
@@ -158,7 +161,7 @@ void setup() {
 
   // BLE 초기화
   NimBLEDevice::init(kDeviceName);
-  NimBLEDevice::setPower(ESP_PWR_LVL_P9);           // 최대 송신 출력
+  NimBLEDevice::setPower(9);                         // 송신 출력 +9dBm (NimBLE 2.x: dBm 직접 지정)
 
   g_server = NimBLEDevice::createServer();
   g_server->setCallbacks(new ServerCallbacks());
@@ -179,7 +182,7 @@ void setup() {
 
   NimBLEAdvertising* adv = NimBLEDevice::getAdvertising();
   adv->addServiceUUID(SERVICE_UUID);
-  adv->setScanResponse(true);
+  adv->enableScanResponse(true);                    // NimBLE 2.x: setScanResponse → enableScanResponse
   NimBLEDevice::startAdvertising();
 
   Serial.printf("[BLE] advertising as '%s'\n", kDeviceName);
