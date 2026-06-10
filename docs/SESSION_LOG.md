@@ -6,6 +6,13 @@
 
 ---
 
+## 2026-06-10 — GitHub Pages 배포
+- **작업자:** Claude
+- **한 일:** 저장소 public 전환, 루트 `index.html`(→`web/` 리다이렉트) 추가,
+  GitHub Pages 활성화(main 루트). 배포 URL: https://elecage.github.io/ESP32_BLE_Servo/
+  → 폰/PC 브라우저에서 https로 바로 BLE 제어 가능.
+- **검증:** 루트/web 경로 HTTP 200 확인. ⬜ 실제 BLE 제어는 보드 연결 후 확인 필요.
+
 ## 2026-06-10 — 웹 UI(Web Bluetooth) 추가
 - **작업자:** Claude
 - **목표:** 스마트폰 BLE 앱 대신 브라우저에서 슬라이더/버튼으로 서보 제어.

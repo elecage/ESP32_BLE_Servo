@@ -43,7 +43,8 @@
 
 ## 5. 빠른 참조 (Quick Reference)
 
-- 웹 UI: `cd web && python -m http.server 8000` → Chrome/Edge로 `http://localhost:8000`
+- 웹 UI(배포): https://elecage.github.io/ESP32_BLE_Servo/ (GitHub Pages, main 루트 `/index.html`→`web/`)
+- 웹 UI(로컬): `cd web && python -m http.server 8000` → Chrome/Edge로 `http://localhost:8000`
 - 빌드: `pio run` · 업로드: `pio run -t upload` · 모니터: `pio device monitor -b 115200`
 - BLE 이름: `ESP32C3-Servo`
 - Service UUID: `4fafc201-1fb5-459e-8fcc-c5c9c331914b`

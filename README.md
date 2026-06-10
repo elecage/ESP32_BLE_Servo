@@ -2,6 +2,9 @@
 
 ESP32-C3 Super Mini에 BLE로 접속하여 서보모터(0~180°)를 제어합니다.
 
+🌐 **웹 제어 UI (폰/PC에서 바로 사용):** https://elecage.github.io/ESP32_BLE_Servo/
+(Chrome·Edge에서 열고 **연결** 클릭 — 앱 설치 불필요)
+
 ## 빠른 시작
 
 ### 1. 개발환경 설치
